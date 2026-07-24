@@ -1,0 +1,19 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Book Appointment</h1>
+
+<form action="/appointment/check-slots" method="GET">
+
+    <label>Select Appointment Date</label>
+
+    <input
+        type="date"
+        name="appointmentDate"
+        required
+    >
+
+    <button type="submit">
+        Check Available Slots
+    </button>
+
+</form>

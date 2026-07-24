@@ -1,0 +1,94 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Today's Appointments</h1>
+
+<div class="cards">
+
+<div class="card">
+
+<h2>Total</h2>
+
+<h1>
+
+<%= totalToday %>
+
+</h1>
+
+</div>
+
+<div class="card">
+
+<h2>Pending</h2>
+
+<h1>
+
+<%= pendingToday %>
+
+</h1>
+
+</div>
+
+<div class="card">
+
+<h2>Completed</h2>
+
+<h1>
+
+<%= completedToday %>
+
+</h1>
+
+</div>
+
+</div>
+
+<table>
+
+<tr>
+
+<th>Name</th>
+
+<th>Mobile</th>
+
+<th>Problem</th>
+
+<th>Slot</th>
+
+<th>Action</th>
+
+</tr>
+
+<% appointments.forEach(app=>{ %>
+
+<tr>
+
+<td><%= app.patientName %></td>
+
+<td><%= app.mobile %></td>
+
+<td><%= app.problem %></td>
+
+<td><%= app.slot %></td>
+
+<td>
+
+<form
+action="/admin/appointments/<%= app._id %>?_method=PATCH"
+method="POST"
+>
+
+<button type="submit">
+
+Done
+
+</button>
+
+</form>
+
+</td>
+
+</tr>
+
+<% }) %>
+
+</table>

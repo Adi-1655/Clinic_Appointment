@@ -1,0 +1,43 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Completed Appointments</h1>
+
+<table>
+
+<tr>
+
+<th>Name</th>
+
+<th>Mobile</th>
+
+<th>Date</th>
+
+<th>Slot</th>
+
+<th>Status</th>
+
+</tr>
+
+<% appointments.forEach(app=>{ %>
+
+<tr>
+
+<td><%= app.patientName %></td>
+
+<td><%= app.mobile %></td>
+
+<td><%= app.appointmentDate %></td>
+
+<td><%= app.slot %></td>
+
+<td>
+
+✅ Completed
+
+</td>
+
+</tr>
+
+<% }) %>
+
+</table>

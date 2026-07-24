@@ -1,0 +1,25 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="success-box">
+
+    <h1>✅ Appointment Booked Successfully</h1>
+
+    <hr>
+
+    <p><strong>Name:</strong> <%= appointment.patientName %></p>
+
+    <p><strong>Date:</strong>
+        <%= new Date(appointment.appointmentDate).toLocaleDateString() %>
+    </p>
+
+    <p><strong>Slot:</strong> <%= appointment.slot %></p>
+
+    <p><strong>Status:</strong> <%= appointment.status %></p>
+
+    <br>
+
+    <a href="/">
+        <button>Go Home</button>
+    </a>
+
+</div>
