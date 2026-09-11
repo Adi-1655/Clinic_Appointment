@@ -1,0 +1,133 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Patient Consultation</h1>
+
+<form action="/admin/consultation" method="POST">
+
+<input
+type="hidden"
+name="appointmentId"
+value="<%= patient._id %>"
+>
+
+<h2>Patient Information</h2>
+
+<p><b>Name :</b> <%= patient.patientName %></p>
+
+<p><b>Age :</b> <%= patient.age %></p>
+
+<p><b>Gender :</b> <%= patient.gender %></p>
+
+<p><b>Mobile :</b> <%= patient.mobile %></p>
+
+<p><b>Problem :</b> <%= patient.problem %></p>
+
+<hr>
+
+<h2>Medicines</h2>
+
+<div id="medicineContainer">
+
+</div>
+
+<button
+type="button"
+onclick="addMedicine()">
+
+Add Medicine
+
+</button>
+
+<hr>
+
+<h2>Recommendation</h2>
+
+<textarea
+name="recommendation"
+rows="5">
+
+</textarea>
+
+<hr>
+
+<h2>Prescription</h2>
+
+<textarea
+name="prescription"
+rows="5">
+
+</textarea>
+
+<br><br>
+
+<button>
+
+Save Consultation
+
+</button>
+
+</form>
+
+<script>
+function addMedicine() {
+
+    // Get the current medicine row index
+    const index = document.querySelectorAll("#medicineContainer > div").length;
+
+    const div = document.createElement("div");
+
+    div.innerHTML = `
+
+<input
+name="medicineName[]"
+placeholder="Medicine Name">
+
+<label>
+
+<input
+type="checkbox"
+name="morning[]"
+value="${index}">
+
+Morning
+
+</label>
+
+<label>
+
+<input
+type="checkbox"
+name="afternoon[]"
+value="${index}">
+
+Afternoon
+
+</label>
+
+<label>
+
+<input
+type="checkbox"
+name="night[]"
+value="${index}">
+
+Night
+
+</label>
+
+<input
+type="number"
+name="days[]"
+placeholder="Days">
+
+<hr>
+
+`;
+
+    document
+        .getElementById("medicineContainer")
+        .appendChild(div);
+}
+
+addMedicine();
+</script>

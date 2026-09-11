@@ -258,6 +258,9 @@ table tr:hover{
     transform:scale(1.03);
 }
 
+
+
+
 /* ---------------- RESPONSIVE ---------------- */
 
 @media(max-width:768px){

@@ -1,6 +1,6 @@
 exports.isLoggedIn=(req,res,next)=>{
 
-    if(!req.session.adminId){
+    if(!req.session || !req.session.adminId){
 
         return res.redirect("/admin/login");
 

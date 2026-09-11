@@ -14,6 +14,8 @@ const adminRoutes=require("./routes/adminRoutes");
 const session = require("express-session");
 const methodOverride = require("method-override");
 
+const consultationRoutes = require("./routes/consultationRoutes");
+
 // Database
 connectDB();
 
@@ -35,6 +37,8 @@ app.use(
     })
 );
 
+app.use("/admin/consultation",consultationRoutes);
+
 app.use("/", appointmentRoutes);
 app.use("/admin",adminRoutes);
 
@@ -45,14 +49,6 @@ app.set("views", path.join(__dirname, "views"));
 
 app.engine("ejs", ejsMate);
 
-const bcrypt = require("bcrypt");
-
-async function generateHash() {
-    const hash = await bcrypt.hash("yash@123", 10);
-    console.log(hash);
-}
-
-generateHash();
 
 // Home Route
 app.get("/", (req, res) => {
