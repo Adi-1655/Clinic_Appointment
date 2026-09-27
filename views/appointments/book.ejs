@@ -12,6 +12,17 @@
         required
     >
 
+    <label>Select Doctor</label>
+    <select name="doctorId" required <%= doctors.length ? "" : "disabled" %>>
+        <% doctors.forEach(doctor => { %>
+            <option value="<%= doctor._id %>"><%= doctor.name %> - <%= doctor.specialty %></option>
+        <% }) %>
+    </select>
+
+    <% if (!doctors.length) { %>
+        <p>No doctors are accepting appointments right now.</p>
+    <% } %>
+
     <button type="submit">
         Check Available Slots
     </button>

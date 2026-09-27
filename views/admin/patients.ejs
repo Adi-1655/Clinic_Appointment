@@ -1,0 +1,25 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Patients</h1>
+
+<form action="/admin/patients" method="GET">
+    <label for="patient-search">Search patients</label>
+    <input id="patient-search" type="search" name="q" value="<%= query %>" placeholder="Name or mobile">
+    <button type="submit">Search</button>
+</form>
+
+<table>
+    <thead><tr><th>Name</th><th>Mobile</th><th>Age</th><th>Gender</th><th>Action</th></tr></thead>
+    <tbody>
+        <% patients.forEach(patient => { %>
+            <tr>
+                <td><%= patient.name %></td>
+                <td><%= patient.mobile %></td>
+                <td><%= patient.age %></td>
+                <td><%= patient.gender %></td>
+                <td><a href="/admin/patients/<%= patient._id %>/edit">Edit</a></td>
+            </tr>
+        <% }) %>
+        <% if (!patients.length) { %><tr><td colspan="5">No patient records found.</td></tr><% } %>
+    </tbody>
+</table>

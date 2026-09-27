@@ -69,6 +69,19 @@ Save Consultation
 </form>
 
 <script>
+const medicineOptions = [
+    "Paracetamol",
+    "Ibuprofen",
+    "Amoxicillin",
+    "Azithromycin",
+    "Cetirizine",
+    "Pantoprazole",
+    "Metformin",
+    "Amlodipine",
+    "Oral Rehydration Salts (ORS)",
+    "Vitamin D3"
+];
+
 function addMedicine() {
 
     // Get the current medicine row index
@@ -78,40 +91,45 @@ function addMedicine() {
 
     div.innerHTML = `
 
-<input
+<select
 name="medicineName[]"
-placeholder="Medicine Name">
+required>
 
-<label>
+<option value="" selected disabled>Choose a medicine</option>
+${medicineOptions.map(medicine => `<option value="${medicine}">${medicine}</option>`).join("")}
+
+</select>
+
+<label class="medicine-time-choice">
 
 <input
 type="checkbox"
 name="morning[]"
 value="${index}">
 
-Morning
+<span>Morning</span>
 
 </label>
 
-<label>
+<label class="medicine-time-choice">
 
 <input
 type="checkbox"
 name="afternoon[]"
 value="${index}">
 
-Afternoon
+<span>Afternoon</span>
 
 </label>
 
-<label>
+<label class="medicine-time-choice">
 
 <input
 type="checkbox"
 name="night[]"
 value="${index}">
 
-Night
+<span>Night</span>
 
 </label>
 

@@ -1,0 +1,69 @@
+<% layout("layouts/boilerplate") %>
+
+<section class="today-appointments-page">
+    <header class="page-heading-row">
+        <div>
+            <p class="dashboard-eyebrow">Admin</p>
+            <h1>Billing</h1>
+            <p class="today-date">Today's patients · <%= todayDate %></p>
+        </div>
+        <a class="button-link" href="/admin/billing/history">Billing History</a>
+    </header>
+
+    <section class="billing-patient-group">
+        <h2>Not Paid Patients</h2>
+        <table class="today-appointments-table">
+            <thead>
+                <tr><th>Time</th><th>Patient</th><th>Mobile</th><th>Doctor</th><th>Reason</th><th>Visit status</th><th>Payment</th></tr>
+            </thead>
+            <tbody>
+                <% notPaidAppointments.forEach(appointment => { %>
+                    <% const invoice = invoiceByAppointment[String(appointment._id)]; %>
+                    <tr>
+                        <td><%= appointment.slot %></td>
+                        <td><%= appointment.patientName %></td>
+                        <td><%= appointment.mobile %></td>
+                        <td><%= appointment.doctor ? appointment.doctor.name : "Not assigned" %></td>
+                        <td><%= appointment.problem %></td>
+                        <td><%= appointment.status %></td>
+                        <td>
+                            <% if (invoice) { %>
+                                <a class="button-link" href="/admin/billing/<%= invoice._id %>/payment">Manage Payment</a>
+                            <% } else { %>
+                                <a class="button-link" href="/admin/billing/appointments/<%= appointment._id %>/invoice">Create manual invoice</a>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }) %>
+                <% if (!notPaidAppointments.length) { %>
+                    <tr><td colspan="7" class="empty-state">No patients have an outstanding payment.</td></tr>
+                <% } %>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="billing-patient-group">
+        <h2>Paid Patients</h2>
+        <table class="today-appointments-table">
+            <thead>
+                <tr><th>Time</th><th>Patient</th><th>Mobile</th><th>Doctor</th><th>Reason</th><th>Visit status</th><th>Payment</th></tr>
+            </thead>
+            <tbody>
+                <% paidAppointments.forEach(appointment => { %>
+                    <tr>
+                        <td><%= appointment.slot %></td>
+                        <td><%= appointment.patientName %></td>
+                        <td><%= appointment.mobile %></td>
+                        <td><%= appointment.doctor ? appointment.doctor.name : "Not assigned" %></td>
+                        <td><%= appointment.problem %></td>
+                        <td><%= appointment.status %></td>
+                        <td>Paid</td>
+                    </tr>
+                <% }) %>
+                <% if (!paidAppointments.length) { %>
+                    <tr><td colspan="7" class="empty-state">No patients have completed payment today.</td></tr>
+                <% } %>
+            </tbody>
+        </table>
+    </section>
+</section>

@@ -1,11 +1,33 @@
 <nav>
 
-    <h2>CityCare - Appointment</h2>
+    <h2>MediCare - Appointment</h2>
 
-    <a href="/">Home</a>
+    <% if (!isAdmin) { %>
+        <a href="/">Home</a>
 
-    <a href="/appointment">Book Appointment</a>
+        <a href="/appointment">Book Appointment</a>
 
-    <a href="/admin/login">Admin</a>
+        <a href="/admin/login">Admin</a>
+    <% } %>
+
+    <% if (isAdmin) { %>
+        <a href="/admin/dashboard">Dashboard</a>
+
+        <a href="/admin/todays-appointments">Today's Appointments</a>
+
+        <a href="/admin/patients">Patients</a>
+
+        <a href="/admin/appointments">Appointments</a>
+
+        <a href="/admin/doctors">Doctors &amp; Schedules</a>
+
+        <a href="/admin/consultation/history">Consultations</a>
+
+        <a href="/admin/billing">Billing</a>
+
+        <form class="nav-logout" action="/admin/logout" method="POST">
+            <button type="submit">Log out</button>
+        </form>
+    <% } %>
 
 </nav>

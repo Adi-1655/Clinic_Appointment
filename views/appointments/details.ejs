@@ -10,6 +10,10 @@
         value="<%= appointmentDate %>"
     >
 
+    <input type="hidden" name="doctorId" value="<%= doctor._id %>">
+
+    <p><strong>Doctor:</strong> <%= doctor.name %> (<%= doctor.specialty %>)</p>
+
     <label>Name</label>
     <input type="text" name="patientName" required>
 

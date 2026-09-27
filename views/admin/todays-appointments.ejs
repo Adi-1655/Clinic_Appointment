@@ -1,0 +1,49 @@
+<% layout("layouts/boilerplate") %>
+
+<section class="today-appointments-page">
+    <header class="page-heading-row">
+        <div>
+            <p class="dashboard-eyebrow">Clinic schedule</p>
+            <h1>Today's Appointments</h1>
+            <p class="today-date"><%= today %></p>
+        </div>
+        <a class="button-link" href="/admin/appointments?status=Pending">Manage appointments</a>
+    </header>
+
+    <section class="dashboard-metrics today-metrics" aria-label="Today's appointment totals">
+        <article class="dashboard-metric">
+            <h2>Total visits</h2>
+            <p><%= totalToday %></p>
+        </article>
+        <article class="dashboard-metric">
+            <h2>Pending</h2>
+            <p><%= pendingToday %></p>
+        </article>
+        <article class="dashboard-metric">
+            <h2>Completed</h2>
+            <p><%= completedToday %></p>
+        </article>
+    </section>
+
+    <table class="today-appointments-table">
+        <thead>
+            <tr><th>Time</th><th>Patient</th><th>Mobile</th><th>Doctor</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+            <% appointments.forEach(appointment => { %>
+                <tr>
+                    <td><%= appointment.slot %></td>
+                    <td><%= appointment.patientName %></td>
+                    <td><%= appointment.mobile %></td>
+                    <td><%= appointment.doctor ? appointment.doctor.name : "Not assigned" %></td>
+                    <td><%= appointment.problem %></td>
+                    <td><span class="appointment-status status-pending">Pending</span></td>
+                    <td><a href="/admin/consultation/<%= appointment._id %>">Start consultation</a></td>
+                </tr>
+            <% }) %>
+            <% if (!appointments.length) { %>
+                <tr><td colspan="7" class="empty-state">No pending appointments for today.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</section>

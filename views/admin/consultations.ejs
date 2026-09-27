@@ -1,0 +1,23 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Consultations and Prescriptions</h1>
+
+<table>
+    <thead><tr><th>Date</th><th>Patient</th><th>Recommendation</th><th>Prescription</th><th>Document</th></tr></thead>
+    <tbody>
+        <% consultations.forEach(consultation => { %>
+            <tr>
+                <td><%= consultation.appointment ? consultation.appointment.appointmentDate : consultation.createdAt.toLocaleDateString() %></td>
+                <td><%= consultation.appointment ? consultation.appointment.patientName : "Appointment record unavailable" %></td>
+                <td><%= consultation.recommendation || "-" %></td>
+                <td><%= consultation.prescription || "-" %></td>
+                <td>
+                    <% if (consultation.appointment && consultation.pdfPath) { %>
+                        <a href="/admin/consultation/pdf/<%= consultation.appointment._id %>">Download PDF</a>
+                    <% } else { %>-<% } %>
+                </td>
+            </tr>
+        <% }) %>
+        <% if (!consultations.length) { %><tr><td colspan="5">No consultations have been recorded.</td></tr><% } %>
+    </tbody>
+</table>

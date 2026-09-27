@@ -9,6 +9,18 @@ const {isLoggedIn} =
 require("../middleware/auth");
 
 router.get(
+    "/history",
+    isLoggedIn,
+    consultationController.history
+);
+
+router.get(
+    "/pdf/:appointmentId",
+    isLoggedIn,
+    consultationController.downloadPrescription
+);
+
+router.get(
     "/:id",
     isLoggedIn,
     consultationController.showConsultation

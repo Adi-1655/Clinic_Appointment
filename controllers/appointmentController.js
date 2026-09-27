@@ -1,21 +1,31 @@
-exports.showBookingForm = (req, res) => {
-  res.render("appointments/book");
-};
-
 const Appointment = require("../models/Appointment");
-const slots = require("../utils/slots");
+const Doctor = require("../models/Doctor");
+const Patient = require("../models/Patient");
+const { getScheduledSlots } = require("../utils/doctorSchedule");
+
+exports.showBookingForm = async (req, res) => {
+        const doctors = await Doctor.find({ active: true }).sort({ name: 1 });
+        res.render("appointments/book", { doctors });
+};
 
 
 exports.checkSlots = async (req, res) => {
 
-    const { appointmentDate } = req.query;
+    const { appointmentDate, doctorId } = req.query;
+    const doctor = await Doctor.findOne({ _id: doctorId, active: true });
 
+    if (!doctor) {
+        return res.status(400).send("Select an available doctor.");
+    }
+
+    const slots = getScheduledSlots(doctor.schedule, appointmentDate);
     const availableSlots = [];
 
-    for (let slot of slots) {
+    for (const slot of slots) {
 
         const count = await Appointment.countDocuments({
             appointmentDate,
+            doctor: doctor._id,
             slot,
             status: "Pending"
         });
@@ -30,6 +40,7 @@ exports.checkSlots = async (req, res) => {
 
     res.render("appointments/details", {
         appointmentDate,
+        doctor,
         availableSlots
     });
 
@@ -45,12 +56,13 @@ exports.bookAppointment = async (req, res) => {
             gender,
             problem,
             appointmentDate,
-            slot
+            slot,
+            doctorId
         } = req.body;
 
-        // Validate slot
-        if (!slots.includes(slot)) {
-            return res.send("Invalid Slot");
+        const doctor = await Doctor.findOne({ _id: doctorId, active: true });
+        if (!doctor || !getScheduledSlots(doctor.schedule, appointmentDate).includes(slot)) {
+            return res.status(400).send("That doctor is not available for the selected slot.");
         }
 
         // Count current bookings for the selected slot
@@ -69,6 +81,7 @@ exports.bookAppointment = async (req, res) => {
         const existingAppointment = await Appointment.findOne({
             mobile,
             appointmentDate,
+            doctor: doctor._id,
             slot,
             status: "Pending"
         });
@@ -77,8 +90,15 @@ exports.bookAppointment = async (req, res) => {
             return res.send("You have already booked this slot.");
         }
 
-        // Save appointment
+        const patient = await Patient.findOneAndUpdate(
+            { mobile: mobile.trim() },
+            { name: patientName, age, gender },
+            { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
+        );
+
         const appointment = new Appointment({
+            patient: patient._id,
+            doctor: doctor._id,
             patientName,
             mobile,
             age,

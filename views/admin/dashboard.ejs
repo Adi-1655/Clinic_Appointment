@@ -1,93 +1,45 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>Today's Appointments</h1>
+<section class="dashboard-page">
+	<header class="dashboard-intro">
+		<p class="dashboard-eyebrow">Dashboard</p>
+		<h1>Welcome to Hospital Management System</h1>
+	</header>
 
-<div class="cards">
+	<section class="dashboard-metrics" aria-label="Hospital overview">
+		<article class="dashboard-metric dashboard-metric-doctors">
+			<span class="metric-icon" aria-hidden="true">&#129658;</span>
+			<h2>Total Doctors</h2>
+			<p><%= totalDoctors %></p>
+		</article>
+		<article class="dashboard-metric dashboard-metric-patients">
+			<span class="metric-icon" aria-hidden="true">&#128101;</span>
+			<h2>Total Patients</h2>
+			<p><%= totalPatients %></p>
+		</article>
+		<a class="dashboard-metric dashboard-metric-appointments" href="/admin/todays-appointments">
+			<span class="metric-icon" aria-hidden="true">&#128197;</span>
+			<h2>Today's Appointments</h2>
+			<p><%= totalToday %></p>
+		</a>
+	</section>
 
-<div class="card">
+	<section class="specialization-section">
+		<div class="section-heading">
+			<h2>Doctor Specializations</h2>
+			<span><%= specializations.length %> specialties</span>
+		</div>
 
-<h2>Total</h2>
-
-<h1>
-
-<%= totalToday %>
-
-</h1>
-
-</div>
-
-<div class="card">
-
-<h2>Pending</h2>
-
-<h1>
-
-<%= pendingToday %>
-
-</h1>
-
-</div>
-
-<div class="card">
-
-<h2>Completed</h2>
-
-<h1>
-
-<%= completedToday %>
-
-</h1>
-
-</div>
-
-</div>
-
-<table>
-
-<tr>
-
-<th>Name</th>
-
-<th>Mobile</th>
-
-<th>Problem</th>
-
-<th>Slot</th>
-
-<th>Action</th>
-
-</tr>
-
-<% appointments.forEach(app=>{ %>
-
-<tr>
-
-<td><%= app.patientName %></td>
-
-<td><%= app.mobile %></td>
-
-<td><%= app.problem %></td>
-
-<td><%= app.slot %></td>
-
-<td>
-
-<form
-action="/admin/consultation/<%= app._id %>"
-method="GET">
-
-<button>
-
-Select
-
-</button>
-
-</form>
-
-</td>
-
-</tr>
-
-<% }) %>
-
-</table>
+		<div class="specialization-list">
+			<% specializations.forEach(item => { %>
+				<div class="specialization-row">
+					<span><%= item._id %></span>
+					<strong><%= item.count %> <%= item.count === 1 ? "Doctor" : "Doctors" %></strong>
+				</div>
+			<% }) %>
+			<% if (!specializations.length) { %>
+				<p class="empty-state">No active doctor specializations have been added.</p>
+			<% } %>
+		</div>
+	</section>
+</section>

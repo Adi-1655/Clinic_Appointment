@@ -1,0 +1,35 @@
+<% layout("layouts/boilerplate") %>
+
+<section class="today-appointments-page">
+    <header class="page-heading-row">
+        <div>
+            <p class="dashboard-eyebrow">Billing</p>
+            <h1>Manage Payment</h1>
+        </div>
+        <a class="button-link" href="/admin/billing">Back to Billing</a>
+    </header>
+
+    <section class="billing-record">
+        <h2>Patient and bill</h2>
+        <p><strong>Patient:</strong> <%= invoice.appointment ? invoice.appointment.patientName : "Appointment record unavailable" %></p>
+        <p><strong>Mobile:</strong> <%= invoice.appointment ? invoice.appointment.mobile : "-" %></p>
+        <p><strong>Visit:</strong> <%= invoice.appointment ? `${invoice.appointment.appointmentDate} · ${invoice.appointment.slot}` : "-" %></p>
+        <p><strong>Total:</strong> INR <%= invoice.totalAmount.toFixed(2) %></p>
+        <p><strong>Paid:</strong> INR <%= invoice.amountPaid.toFixed(2) %></p>
+        <p><strong>Balance due:</strong> INR <%= invoice.balanceDue.toFixed(2) %></p>
+    </section>
+
+    <form action="/admin/billing/<%= invoice._id %>/payment" method="POST">
+        <label for="amount">Payment amount (INR)</label>
+        <input id="amount" type="number" name="amount" min="0.01" max="<%= invoice.balanceDue %>" step="0.01" required>
+
+        <label for="method">Payment method</label>
+        <select id="method" name="method" required>
+            <% ["Cash", "UPI", "Card", "Bank transfer"].forEach(method => { %>
+                <option value="<%= method %>"><%= method %></option>
+            <% }) %>
+        </select>
+
+        <button type="submit">Save Payment</button>
+    </form>
+</section>

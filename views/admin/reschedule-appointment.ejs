@@ -1,0 +1,72 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Reschedule Appointment</h1>
+
+<form action="/admin/appointments/<%= appointment._id %>/reschedule" method="POST" id="reschedule-form">
+    <h2>Patient information</h2>
+    <p><strong>Name:</strong> <%= appointment.patientName %></p>
+    <p><strong>Mobile:</strong> <%= appointment.mobile %></p>
+    <p><strong>Problem:</strong> <%= appointment.problem %></p>
+
+    <label for="appointmentDate">New appointment date</label>
+    <input id="appointmentDate" type="date" name="appointmentDate" value="<%= appointment.appointmentDate %>" required>
+
+    <label for="doctorId">Doctor</label>
+    <select id="doctorId" name="doctorId" required>
+        <% doctors.forEach(doctor => { %>
+            <option value="<%= doctor._id %>" <%= String(appointment.doctor?._id) === String(doctor._id) ? "selected" : "" %>><%= doctor.name %> - <%= doctor.specialty %></option>
+        <% }) %>
+    </select>
+
+    <label for="slot">Available time</label>
+    <select id="slot" name="slot" required>
+        <% availableSlots.forEach(slot => { %>
+            <option value="<%= slot %>" <%= appointment.slot === slot ? "selected" : "" %>><%= slot %></option>
+        <% }) %>
+    </select>
+    <p id="slot-message" role="status"><%= availableSlots.length ? "Choose a date, doctor, and available time." : "No available times for this doctor on the selected date." %></p>
+
+    <button id="save-reschedule" type="submit" <%= availableSlots.length ? "" : "disabled" %>>Save reschedule</button>
+    <a href="/admin/appointments?status=Pending">Back to pending appointments</a>
+</form>
+
+<script>
+const dateInput = document.getElementById("appointmentDate");
+const doctorInput = document.getElementById("doctorId");
+const slotInput = document.getElementById("slot");
+const slotMessage = document.getElementById("slot-message");
+const saveButton = document.getElementById("save-reschedule");
+
+async function refreshAvailableSlots() {
+    const previousSelection = slotInput.value;
+    slotInput.replaceChildren();
+    const params = new URLSearchParams({
+        appointmentDate: dateInput.value,
+        doctorId: doctorInput.value
+    });
+
+    try {
+        const response = await fetch(`/admin/appointments/reschedule-slots?${params}`);
+        if (!response.ok) throw new Error("Could not load available times.");
+        const { slots } = await response.json();
+        for (const slot of slots) {
+            const option = new Option(slot, slot);
+            slotInput.add(option);
+        }
+        if (slots.includes(previousSelection)) slotInput.value = previousSelection;
+        slotInput.disabled = slots.length === 0;
+        saveButton.disabled = slots.length === 0;
+        slotMessage.textContent = slots.length
+            ? "Choose an available time."
+            : "No available times for this doctor on the selected date.";
+    } catch (error) {
+        slotInput.disabled = true;
+        saveButton.disabled = true;
+        slotMessage.textContent = error.message;
+    }
+}
+
+dateInput.addEventListener("change", refreshAvailableSlots);
+doctorInput.addEventListener("change", refreshAvailableSlots);
+refreshAvailableSlots();
+</script>

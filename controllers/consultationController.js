@@ -1,6 +1,7 @@
 const generatePrescription = require("../utils/pdfGenerator");
 const Appointment = require("../models/Appointment");
 const Consultation = require("../models/Consultation");
+const path = require("path");
 
 exports.showConsultation = async(req,res)=>{
 
@@ -16,6 +17,22 @@ exports.showConsultation = async(req,res)=>{
     );
 
 }
+
+exports.history = async (req, res) => {
+    const consultations = await Consultation.find()
+        .populate("appointment", "patientName mobile appointmentDate slot")
+        .sort({ createdAt: -1 });
+    res.render("admin/consultations", { consultations });
+};
+
+exports.downloadPrescription = async (req, res) => {
+    const consultation = await Consultation.findOne({ appointment: req.params.appointmentId });
+    if (!consultation?.pdfPath) return res.status(404).send("Prescription PDF not found.");
+
+    const fileName = path.basename(consultation.pdfPath);
+    const filePath = path.join(__dirname, "../pdfs", fileName);
+    res.download(filePath, `${fileName}`);
+};
 
 exports.saveConsultation = async (req, res) => {
 
@@ -74,9 +91,9 @@ exports.saveConsultation = async (req, res) => {
         );
 
 
-        const pdfPath = generatePrescription(patient, consultation);
+        const generatedPdf = await generatePrescription(patient, consultation);
 
-        consultation.pdfPath = pdfPath;
+        consultation.pdfPath = generatedPdf.publicPath;
         await consultation.save();
 
         await Appointment.findByIdAndUpdate(

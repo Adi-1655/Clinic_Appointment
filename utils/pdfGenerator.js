@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 
-function generatePrescription(patient, consultation) {
+async function generatePrescription(patient, consultation) {
 
     const pdfDir = path.join(__dirname, "../pdfs");
 
@@ -11,7 +11,10 @@ function generatePrescription(patient, consultation) {
         fs.mkdirSync(pdfDir);
     }
 
-    const fileName = `${patient.patientName}.pdf`;
+    const safePatientName = patient.patientName
+        .replace(/[^a-z0-9-_]/gi, "_")
+        .replace(/_+/g, "_");
+    const fileName = `${safePatientName}-${patient._id}.pdf`;
 
     const pdfPath = path.join(pdfDir, fileName);
 
@@ -19,7 +22,13 @@ function generatePrescription(patient, consultation) {
         margin:50
     });
 
-    doc.pipe(fs.createWriteStream(pdfPath));
+    const outputStream = fs.createWriteStream(pdfPath);
+    const fileWritten = new Promise((resolve, reject) => {
+        outputStream.on("finish", resolve);
+        outputStream.on("error", reject);
+    });
+
+    doc.pipe(outputStream);
 
     /* ---------- Header ---------- */
 
@@ -60,16 +69,6 @@ function generatePrescription(patient, consultation) {
     doc.text(`Date : ${patient.appointmentDate}`);
 
     doc.moveDown();
-
-    /* ---------- Medicines ---------- */
-
-    doc
-    .fontSize(18)
-    .text("Medicines");
-
-    doc.moveDown();
-
-    console.log(JSON.stringify(consultation.medicines, null, 2));
 
     /* ---------- Medicines Table ---------- */
 
@@ -201,9 +200,15 @@ align:"right"
 }
 );
 
-    doc.end();
+    await new Promise((resolve, reject) => {
+        doc.end();
+        fileWritten.then(resolve).catch(reject);
+    });
 
-    return `/pdfs/${fileName}`;
+    return {
+        filePath: pdfPath,
+        publicPath: `/pdfs/${fileName}`
+    };
 
 }
 

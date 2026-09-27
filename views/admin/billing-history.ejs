@@ -1,0 +1,46 @@
+<% layout("layouts/boilerplate") %>
+
+<section class="today-appointments-page">
+    <header class="page-heading-row">
+        <div>
+            <p class="dashboard-eyebrow">Admin</p>
+            <h1>Billing History</h1>
+            <p class="today-date">Saved bills and recorded payments</p>
+        </div>
+        <a class="button-link" href="/admin/billing">Back to Billing</a>
+    </header>
+
+    <table class="today-appointments-table">
+        <thead>
+            <tr><th>Bill date</th><th>Patient</th><th>Visit date</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            <% invoices.forEach(invoice => { %>
+                <tr>
+                    <td><%= invoice.createdAt.toLocaleDateString() %></td>
+                    <td>
+                        <%= invoice.appointment ? invoice.appointment.patientName : "Appointment record unavailable" %>
+                        <% if (invoice.appointment) { %><br><%= invoice.appointment.mobile %><% } %>
+                    </td>
+                    <td><%= invoice.appointment ? invoice.appointment.appointmentDate : "-" %></td>
+                    <td>INR <%= invoice.totalAmount.toFixed(2) %></td>
+                    <td>INR <%= invoice.amountPaid.toFixed(2) %></td>
+                    <td>INR <%= invoice.balanceDue.toFixed(2) %></td>
+                    <td><%= invoice.paymentStatus %></td>
+                </tr>
+                <% if (invoice.payments.length) { %>
+                    <tr>
+                        <td colspan="7">
+                            <% invoice.payments.forEach(payment => { %>
+                                <span><%= payment.receivedAt.toLocaleDateString() %>: <%= payment.method %> · INR <%= payment.amount.toFixed(2) %>　</span>
+                            <% }) %>
+                        </td>
+                    </tr>
+                <% } %>
+            <% }) %>
+            <% if (!invoices.length) { %>
+                <tr><td colspan="7" class="empty-state">No billing records have been saved.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</section>

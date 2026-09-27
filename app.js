@@ -11,10 +11,11 @@ const app = express();
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const adminRoutes=require("./routes/adminRoutes");
 
-const session = require("express-session");
+const cookieParser = require("cookie-parser");
 const methodOverride = require("method-override");
 
 const consultationRoutes = require("./routes/consultationRoutes");
+const { loadAdmin } = require("./middleware/auth");
 
 // Database
 connectDB();
@@ -26,16 +27,8 @@ app.use(express.json());
 
 app.use(methodOverride("_method"));
 
-app.use(
-    session({
-        secret: process.env.SESSION_SECRET || "mysecret",
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            maxAge: 1000 * 60 * 60 * 24
-        }
-    })
-);
+app.use(cookieParser());
+app.use(loadAdmin);
 
 app.use("/admin/consultation",consultationRoutes);
 
@@ -53,11 +46,6 @@ app.engine("ejs", ejsMate);
 // Home Route
 app.get("/", (req, res) => {
     res.render("appointments/home");
-});
-
-app.get("/test", (req, res) => {
-    console.log(req.session);
-    res.send("Check terminal");
 });
 
 const PORT = process.env.PORT || 3000;

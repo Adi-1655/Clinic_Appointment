@@ -2,6 +2,14 @@ const mongoose = require("mongoose");
 
 const appointmentSchema = new mongoose.Schema(
   {
+    patient: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Patient",
+    },
+    doctor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Doctor",
+    },
     patientName: {
       type: String,
       required: true,
@@ -41,7 +49,7 @@ const appointmentSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Pending", "Completed"],
+      enum: ["Pending", "Completed", "Cancelled"],
       default: "Pending",
     },
   },

@@ -1,0 +1,23 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Edit Patient</h1>
+
+<form action="/admin/patients/<%= patient._id %>?_method=PATCH" method="POST">
+    <label for="name">Name</label>
+    <input id="name" name="name" value="<%= patient.name %>" required>
+
+    <label for="mobile">Mobile</label>
+    <input id="mobile" name="mobile" value="<%= patient.mobile %>" required>
+
+    <label for="age">Age</label>
+    <input id="age" name="age" type="number" min="0" value="<%= patient.age %>" required>
+
+    <label for="gender">Gender</label>
+    <select id="gender" name="gender" required>
+        <% ["Male", "Female", "Other"].forEach(gender => { %>
+            <option value="<%= gender %>" <%= patient.gender === gender ? "selected" : "" %>><%= gender %></option>
+        <% }) %>
+    </select>
+
+    <button type="submit">Save Patient</button>
+</form>

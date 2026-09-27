@@ -1,0 +1,33 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Edit Doctor Schedule</h1>
+
+<form action="/admin/doctors/<%= doctor._id %>?_method=PATCH" method="POST">
+    <label for="doctor-name">Name</label>
+    <input id="doctor-name" name="name" value="<%= doctor.name %>" required>
+
+    <label for="doctor-specialty">Specialty</label>
+    <input id="doctor-specialty" name="specialty" value="<%= doctor.specialty %>" required>
+
+    <fieldset>
+        <legend>Working days</legend>
+        <% days.forEach((day, index) => { %>
+            <label class="schedule-choice">
+                <input type="checkbox" name="days[]" value="<%= index %>" <%= doctor.schedule.some(item => item.dayOfWeek === index) ? "checked" : "" %>>
+                <span><%= day %></span>
+            </label>
+        <% }) %>
+    </fieldset>
+
+    <fieldset>
+        <legend>Available appointment times</legend>
+        <% slots.forEach(slot => { %>
+            <label class="schedule-choice">
+                <input type="checkbox" name="slots[]" value="<%= slot %>" <%= doctor.schedule.some(item => item.slots.includes(slot)) ? "checked" : "" %>>
+                <span><%= slot %></span>
+            </label>
+        <% }) %>
+    </fieldset>
+
+    <button type="submit">Save Schedule</button>
+</form>
