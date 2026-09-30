@@ -6,8 +6,67 @@ on:
       - main
 
 jobs:
+
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/clinic-app:latest .
+
+      - name: Push Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/clinic-app:latest
+
+  deploy:
+    needs: build-and-push
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          script: |
+
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/clinic-app:latest
+
+            docker stop clinic-app || true
+            docker rm clinic-app || true
+
+            cat > .env << EOF
+            PORT=3000
+            MONGO_URI=YOUR_MONGODB_ATLAS_URI
+            JWT_SECRET=YOUR_SECRET
+            EOF
+
+            docker run -d \
+              --name clinic-app \
+              --env-file .env \
+              -p 80:3000 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/clinic-app:latest
+
+            docker ps
