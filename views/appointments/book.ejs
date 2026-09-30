@@ -1,30 +1,35 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>Book Appointment</h1>
+<div class="form-page-container">
+    <div class="form-header-center">
+        <p class="dashboard-eyebrow">ONLINE CLINIC SCHEDULING</p>
+        <h1>Book an Appointment</h1>
+        <p class="form-subtitle">Choose your preferred consultation date and specialist doctor.</p>
+    </div>
 
-<form action="/appointment/check-slots" method="GET">
+    <form class="styled-form-card" action="/appointment/check-slots" method="GET">
+        <div class="form-field">
+            <label for="app-date">Select Appointment Date</label>
+            <input id="app-date" type="date" name="appointmentDate" required>
+        </div>
 
-    <label>Select Appointment Date</label>
+        <div class="form-field">
+            <label for="app-doctor">Select Doctor</label>
+            <select id="app-doctor" name="doctorId" required <%= doctors.length ? "" : "disabled" %>>
+                <% doctors.forEach(doctor => { %>
+                    <option value="<%= doctor._id %>"><%= doctor.name %> — <%= doctor.specialty %></option>
+                <% }) %>
+            </select>
+        </div>
 
-    <input
-        type="date"
-        name="appointmentDate"
-        required
-    >
+        <% if (!doctors.length) { %>
+            <div class="alert alert-error" style="margin-top: 14px;">
+                No active doctors are currently available for appointments.
+            </div>
+        <% } %>
 
-    <label>Select Doctor</label>
-    <select name="doctorId" required <%= doctors.length ? "" : "disabled" %>>
-        <% doctors.forEach(doctor => { %>
-            <option value="<%= doctor._id %>"><%= doctor.name %> - <%= doctor.specialty %></option>
-        <% }) %>
-    </select>
-
-    <% if (!doctors.length) { %>
-        <p>No doctors are accepting appointments right now.</p>
-    <% } %>
-
-    <button type="submit">
-        Check Available Slots
-    </button>
-
-</form>
+        <button type="submit" class="btn-pill-primary" style="width: 100%; margin-top: 8px;">
+            Check Available Slots &rarr;
+        </button>
+    </form>
+</div>

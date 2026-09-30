@@ -1,0 +1,138 @@
+<% layout("layouts/boilerplate") %>
+
+<section class="dashboard-page">
+    <div class="page-heading-row">
+        <div>
+            <p class="dashboard-eyebrow">SYSTEM ACCESS CONTROL</p>
+            <h1>Admin Management</h1>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <button type="button" class="btn-pill-primary" onclick="openAdminModal()">+ Add New Admin</button>
+            <a class="button-link-secondary" href="/admin/dashboard">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <% if (typeof success !== "undefined" && success) { %>
+        <div class="alert alert-success">
+            <strong>✓ Success:</strong> <%= success %>
+        </div>
+    <% } %>
+    <% if (typeof error !== "undefined" && error) { %>
+        <div class="alert alert-error">
+            <strong>⚠ Notice:</strong> <%= error %>
+        </div>
+    <% } %>
+
+    <div class="admin-card" style="margin-top: 10px;">
+        <div class="section-heading">
+            <h2>Active Administrators</h2>
+            <span><%= totalAdmins %> Total</span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Username</th>
+                    <th>Role</th>
+                    <th>Created</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% admins.forEach(admin => { %>
+                    <tr>
+                        <td style="text-align: left; font-weight: 600;">
+                            <%= admin.username %>
+                            <% if (String(admin._id) === String(currentAdminId)) { %>
+                                <span class="badge-current-user">You</span>
+                            <% } %>
+                        </td>
+                        <td><span class="badge-admin">Admin</span></td>
+                        <td class="muted-text">
+                            <%= admin.createdAt ? new Date(admin.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Existing' %>
+                        </td>
+                        <td>
+                            <% if (String(admin._id) !== String(currentAdminId)) { %>
+                                <form action="/admin/admins/<%= admin._id %>/delete" method="POST" style="display: inline-block; width: auto; margin: 0; padding: 0; background: transparent; box-shadow: none;" onsubmit="return confirm('Are you sure you want to delete admin <%= admin.username %>?');">
+                                    <input type="hidden" name="redirectTo" value="/admin/admins">
+                                    <button type="submit" class="btn-delete-sm">Delete</button>
+                                </form>
+                            <% } else { %>
+                                <span class="muted-text" style="font-size: 13px;">Active Session</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }) %>
+                <% if (!admins.length) { %>
+                    <tr>
+                        <td colspan="4" class="empty-state">No administrators found.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Add Admin Modal -->
+<div id="adminModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3>Add New Administrator</h3>
+            <button type="button" class="modal-close" onclick="closeAdminModal()" aria-label="Close">&times;</button>
+        </div>
+        <form action="/admin/admins" method="POST" class="modal-form">
+            <input type="hidden" name="redirectTo" value="/admin/admins">
+
+            <div class="form-field">
+                <label for="modal-username">Username</label>
+                <input id="modal-username" type="text" name="username" placeholder="e.g. DrSmithAdmin" minlength="3" required autocomplete="off">
+            </div>
+
+            <div class="form-field">
+                <label for="modal-password">Password</label>
+                <input id="modal-password" type="password" name="password" placeholder="At least 6 characters" minlength="6" required autocomplete="new-password">
+            </div>
+
+            <div class="form-field">
+                <label for="modal-confirm">Confirm Password</label>
+                <input id="modal-confirm" type="password" name="confirmPassword" placeholder="Re-enter password" minlength="6" required>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
+                <button type="submit" class="btn-submit">+ Create Admin</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAdminModal() {
+    const modal = document.getElementById('adminModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        const input = document.getElementById('modal-username');
+        if (input) setTimeout(() => input.focus(), 100);
+    }
+}
+
+function closeAdminModal() {
+    const modal = document.getElementById('adminModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+window.addEventListener('click', function(e) {
+    const modal = document.getElementById('adminModal');
+    if (e.target === modal) {
+        closeAdminModal();
+    }
+});
+
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeAdminModal();
+    }
+});
+</script>

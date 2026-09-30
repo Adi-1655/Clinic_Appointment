@@ -1,33 +1,42 @@
-<nav>
+<nav class="main-navbar">
 
-    <h2>MediCare - Appointment</h2>
+    <a href="<%= isAdmin ? '/admin/dashboard' : '/' %>" class="nav-brand">
+        <span class="brand-cross">&#10010;</span>
+        <h2>MediFlow HMS</h2>
+    </a>
 
-    <% if (!isAdmin) { %>
-        <a href="/">Home</a>
+    <div class="nav-links">
+        <% if (!isAdmin) { %>
+            <a href="/">Home</a>
 
-        <a href="/appointment">Book Appointment</a>
+            <a href="/appointment" class="nav-btn-book">Book Appointment</a>
 
-        <a href="/admin/login">Admin</a>
-    <% } %>
+            <a href="/admin/login">Admin</a>
+        <% } %>
 
-    <% if (isAdmin) { %>
-        <a href="/admin/dashboard">Dashboard</a>
+        <% if (isAdmin) { %>
+            <a href="/admin/dashboard">Dashboard</a>
 
-        <a href="/admin/todays-appointments">Today's Appointments</a>
+            <a href="/admin/todays-appointments">Today's Appointments</a>
 
-        <a href="/admin/patients">Patients</a>
+            <a href="/admin/patients">Patients</a>
 
-        <a href="/admin/appointments">Appointments</a>
+            <a href="/admin/appointments">All Appointments</a>
 
-        <a href="/admin/doctors">Doctors &amp; Schedules</a>
+            <a href="/admin/doctors">Doctors &amp; Schedules</a>
 
-        <a href="/admin/consultation/history">Consultations</a>
+            <a href="/admin/consultation/history">Consultations</a>
 
-        <a href="/admin/billing">Billing</a>
+            <a href="/admin/billing">Billing</a>
 
-        <form class="nav-logout" action="/admin/logout" method="POST">
-            <button type="submit">Log out</button>
-        </form>
-    <% } %>
+            <% if (isSuperAdmin) { %>
+                <a href="/admin/admins">Manage Admins</a>
+            <% } %>
+
+            <form class="nav-logout" action="/admin/logout" method="POST">
+                <button type="submit">Log out</button>
+            </form>
+        <% } %>
+    </div>
 
 </nav>

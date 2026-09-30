@@ -93,7 +93,7 @@ exports.bookAppointment = async (req, res) => {
         const patient = await Patient.findOneAndUpdate(
             { mobile: mobile.trim() },
             { name: patientName, age, gender },
-            { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
+            { returnDocument: 'after', upsert: true, runValidators: true, setDefaultsOnInsert: true }
         );
 
         const appointment = new Appointment({

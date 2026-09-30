@@ -7,4 +7,4 @@ const patientSchema = new mongoose.Schema({
     gender: { type: String, enum: ["Male", "Female", "Other"], required: true }
 }, { timestamps: true });
 
-module.exports = mongoose.model("Patient", patientSchema);
+module.exports = mongoose.models.Patient || mongoose.model("Patient", patientSchema);

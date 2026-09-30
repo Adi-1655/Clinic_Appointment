@@ -19,7 +19,7 @@ const invoiceSchema = new mongoose.Schema({
     payments: [paymentSchema],
     paymentStatus: {
         type: String,
-        enum: ["Unpaid", "Partially paid", "Paid"],
+        enum: ["Unpaid", "Paid"],
         default: "Unpaid"
     }
 }, { timestamps: true });
@@ -33,7 +33,8 @@ invoiceSchema.virtual("amountPaid").get(function () {
 });
 
 invoiceSchema.virtual("balanceDue").get(function () {
+    if (this.paymentStatus === "Paid") return 0;
     return Math.max(0, this.totalAmount - this.amountPaid);
 });
 
-module.exports = mongoose.model("Invoice", invoiceSchema);
+module.exports = mongoose.models.Invoice || mongoose.model("Invoice", invoiceSchema);

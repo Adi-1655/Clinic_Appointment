@@ -1,49 +1,83 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>Doctors and Schedules</h1>
+<section class="dashboard-page">
+    <div class="page-heading-row">
+        <div>
+            <p class="dashboard-eyebrow">MEDICAL STAFF</p>
+            <h1>Doctors &amp; Schedules</h1>
+        </div>
+        <a class="button-link-secondary" href="/admin/dashboard">Back to Dashboard</a>
+    </div>
 
-<form action="/admin/doctors" method="POST">
-    <h2>Add Doctor</h2>
-    <label for="doctor-name">Name</label>
-    <input id="doctor-name" name="name" required>
+    <form class="styled-form-card" action="/admin/doctors" method="POST" style="width: 100%; max-width: 100%; margin: 0 0 32px;">
+        <h2 style="margin-bottom: 18px; font-size: 20px;">Add Doctor &amp; Working Hours</h2>
+        
+        <div class="form-row-2">
+            <div class="form-field">
+                <label for="doctor-name">Doctor Name</label>
+                <input id="doctor-name" name="name" placeholder="e.g. Dr. Elena Petrova" required>
+            </div>
+            <div class="form-field">
+                <label for="doctor-specialty">Specialty / Department</label>
+                <input id="doctor-specialty" name="specialty" placeholder="e.g. Cardiology, Neurology" required>
+            </div>
+        </div>
 
-    <label for="doctor-specialty">Specialty</label>
-    <input id="doctor-specialty" name="specialty" required>
+        <fieldset>
+            <legend>Weekly Working Days</legend>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+                <% days.forEach((day, index) => { %>
+                    <label class="schedule-choice"><input type="checkbox" name="days[]" value="<%= index %>"> <span><%= day %></span></label>
+                <% }) %>
+            </div>
+        </fieldset>
 
-    <fieldset>
-        <legend>Working days</legend>
-        <% days.forEach((day, index) => { %>
-            <label class="schedule-choice"><input type="checkbox" name="days[]" value="<%= index %>"> <span><%= day %></span></label>
-        <% }) %>
-    </fieldset>
+        <fieldset>
+            <legend>Available Consultation Time Slots</legend>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
+                <% slots.forEach(slot => { %>
+                    <label class="schedule-choice"><input type="checkbox" name="slots[]" value="<%= slot %>"> <span><%= slot %></span></label>
+                <% }) %>
+            </div>
+        </fieldset>
 
-    <fieldset>
-        <legend>Available appointment times</legend>
-        <% slots.forEach(slot => { %>
-            <label class="schedule-choice"><input type="checkbox" name="slots[]" value="<%= slot %>"> <span><%= slot %></span></label>
-        <% }) %>
-    </fieldset>
+        <button type="submit" class="btn-pill-primary" style="margin-top: 10px;">+ Add Doctor to Directory</button>
+    </form>
 
-    <button type="submit">Add Doctor</button>
-</form>
-
-<table>
-    <thead><tr><th>Doctor</th><th>Specialty</th><th>Weekly schedule</th><th>Status</th><th>Action</th></tr></thead>
-    <tbody>
-        <% doctors.forEach(doctor => { %>
+    <table>
+        <thead>
             <tr>
-                <td><%= doctor.name %></td>
-                <td><%= doctor.specialty %></td>
-                <td><%= doctor.schedule.map(item => `${days[item.dayOfWeek]}: ${item.slots.join(", ")}`).join("; ") %></td>
-                <td><%= doctor.active ? "Active" : "Inactive" %></td>
-                <td>
-                    <a href="/admin/doctors/<%= doctor._id %>/edit">Edit schedule</a>
-                    <form action="/admin/doctors/<%= doctor._id %>/toggle" method="POST">
-                        <button type="submit"><%= doctor.active ? "Deactivate" : "Activate" %></button>
-                    </form>
-                </td>
+                <th>Doctor</th>
+                <th>Specialty</th>
+                <th>Weekly Schedule</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
-        <% }) %>
-        <% if (!doctors.length) { %><tr><td colspan="5">No doctors have been added.</td></tr><% } %>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            <% doctors.forEach(doctor => { %>
+                <tr>
+                    <td style="font-weight: 600;"><%= doctor.name %></td>
+                    <td><span class="badge-pill"><%= doctor.specialty %></span></td>
+                    <td style="font-size: 13.5px; color: var(--text-muted);"><%= doctor.schedule.map(item => `${days[item.dayOfWeek]}: ${item.slots.join(", ")}`).join("; ") %></td>
+                    <td>
+                        <span class="appointment-status <%= doctor.active ? 'status-completed' : 'status-pending' %>">
+                            <%= doctor.active ? "Active" : "Inactive" %>
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <a class="button-link-secondary" style="padding: 5px 12px; font-size: 12.5px;" href="/admin/doctors/<%= doctor._id %>/edit">Edit</a>
+                            <form action="/admin/doctors/<%= doctor._id %>/toggle" method="POST" style="display: inline; width: auto; margin: 0; padding: 0; background: transparent; box-shadow: none; border: none;">
+                                <button type="submit" class="button-link-secondary" style="padding: 5px 12px; font-size: 12.5px; background: #eef3f4; color: #355054;">
+                                    <%= doctor.active ? "Deactivate" : "Activate" %>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            <% }) %>
+            <% if (!doctors.length) { %><tr><td colspan="5" class="empty-state">No doctors have been added.</td></tr><% } %>
+        </tbody>
+    </table>
+</section>

@@ -54,7 +54,4 @@ const consultationSchema = new mongoose.Schema({
 },{timestamps:true});
 
 
-module.exports = mongoose.model(
-    "Consultation",
-    consultationSchema
-);
+module.exports = mongoose.models.Consultation || mongoose.model("Consultation", consultationSchema);

@@ -16,7 +16,7 @@ adminController.login
 
 router.post("/logout", adminController.logout);
 
-const {isLoggedIn}=require("../middleware/auth");
+const { isLoggedIn, isSuperAdmin } = require("../middleware/auth");
 
 router.get(
 "/dashboard",
@@ -57,5 +57,10 @@ router.get("/billing/appointments/:appointmentId/invoice", isLoggedIn, billingCo
 router.post("/billing/appointments/:appointmentId/invoice", isLoggedIn, billingController.createManualInvoice);
 router.get("/billing/:id/payment", isLoggedIn, billingController.showPaymentForm);
 router.post("/billing/:id/payment", isLoggedIn, billingController.recordPayment);
+
+router.get("/admins", isLoggedIn, isSuperAdmin, adminController.listAdmins);
+router.post("/admins", isLoggedIn, isSuperAdmin, adminController.createAdmin);
+router.post("/admins/:id/delete", isLoggedIn, isSuperAdmin, adminController.deleteAdmin);
+router.delete("/admins/:id", isLoggedIn, isSuperAdmin, adminController.deleteAdmin);
 
 module.exports = router;

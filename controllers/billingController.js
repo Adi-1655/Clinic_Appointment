@@ -29,12 +29,13 @@ exports.index = async (req, res) => {
     }
 
     const notPaidAppointments = appointments.filter(appointment => {
+        if (appointment.status !== "Completed") return false;
         const invoice = invoiceByAppointment[String(appointment._id)];
-        return !invoice || invoice.balanceDue > 0;
+        return !invoice || invoice.paymentStatus !== "Paid";
     });
     const paidAppointments = appointments.filter(appointment => {
         const invoice = invoiceByAppointment[String(appointment._id)];
-        return invoice && invoice.balanceDue <= 0;
+        return invoice && invoice.paymentStatus === "Paid";
     });
 
     res.render("admin/billing", {
@@ -60,8 +61,8 @@ exports.showInvoiceForm = async (req, res) => {
     const appointment = await Appointment.findById(req.params.appointmentId)
         .populate("doctor", "name specialty");
     if (!appointment) return res.status(404).send("Appointment not found.");
-    if (appointment.appointmentDate !== getTodayDate() || appointment.status === "Cancelled") {
-        return res.status(400).send("Manual invoices can only be created for today's active appointments.");
+    if (appointment.appointmentDate !== getTodayDate() || appointment.status !== "Completed") {
+        return res.status(400).send("Manual invoices can only be created for today's completed visits.");
     }
     const existingInvoice = await Invoice.exists({ appointment: appointment._id });
     if (existingInvoice) return res.redirect("/admin/billing");
@@ -76,28 +77,31 @@ exports.createManualInvoice = async (req, res) => {
     const appointment = await Appointment.findOne({
         _id: req.params.appointmentId,
         appointmentDate: getTodayDate(),
-        status: { $ne: "Cancelled" }
+        status: "Completed"
     });
-    if (!appointment) return res.status(404).send("Today's active appointment not found.");
+    if (!appointment) return res.status(404).send("Today's completed appointment not found.");
 
-    const consultationFee = Number(req.body.consultationFee);
-    const medicineCharges = Number(req.body.medicineCharges);
-    const otherCharges = Number(req.body.otherCharges);
-    const paymentAmount = Number(req.body.paymentAmount || 0);
+    const consultationFee = Number(req.body.consultationFee || 0);
+    const medicineCharges = Number(req.body.medicineCharges || 0);
+    const otherCharges = Number(req.body.otherCharges || 0);
     const totalAmount = consultationFee + medicineCharges + otherCharges;
     const methods = ["Cash", "UPI", "Card", "Bank transfer"];
+    const isPaid = req.body.paymentAction === "paid" || (req.body.paymentMethod && req.body.paymentMethod !== "");
     const paymentMethod = req.body.paymentMethod;
 
-    if (![consultationFee, medicineCharges, otherCharges, paymentAmount].every(Number.isFinite)
-        || [consultationFee, medicineCharges, otherCharges, paymentAmount].some(amount => amount < 0)
-        || totalAmount <= 0 || paymentAmount > totalAmount
-        || (paymentAmount > 0 && !methods.includes(paymentMethod))) {
-        return res.status(400).send("Enter valid non-negative charges and a payment no greater than the invoice total.");
+    if (![consultationFee, medicineCharges, otherCharges].every(Number.isFinite)
+        || [consultationFee, medicineCharges, otherCharges].some(amount => amount < 0)
+        || totalAmount <= 0) {
+        return res.status(400).send("Enter valid non-negative charges totaling greater than 0.");
+    }
+
+    if (isPaid && !methods.includes(paymentMethod)) {
+        return res.status(400).send("Please select a valid payment method for full one-time payment.");
     }
 
     try {
-        const payments = paymentAmount > 0
-            ? [{ amount: paymentAmount, method: paymentMethod }]
+        const payments = isPaid
+            ? [{ amount: totalAmount, method: paymentMethod, receivedAt: new Date() }]
             : [];
         await Invoice.create({
             appointment: appointment._id,
@@ -105,7 +109,7 @@ exports.createManualInvoice = async (req, res) => {
             medicineCharges,
             otherCharges,
             payments,
-            paymentStatus: paymentAmount >= totalAmount ? "Paid" : paymentAmount > 0 ? "Partially paid" : "Unpaid"
+            paymentStatus: isPaid ? "Paid" : "Unpaid"
         });
     } catch (error) {
         if (error.code === 11000) return res.status(409).send("An invoice already exists for this appointment.");
@@ -120,9 +124,9 @@ exports.showPaymentForm = async (req, res) => {
         return res.status(400).send("Invalid bill.");
     }
     const invoice = await Invoice.findById(req.params.id)
-        .populate("appointment", "patientName mobile appointmentDate slot");
+        .populate("appointment", "patientName mobile appointmentDate slot problem");
     if (!invoice) return res.status(404).send("Bill not found.");
-    if (invoice.balanceDue <= 0) return res.redirect("/admin/billing");
+    if (invoice.paymentStatus === "Paid") return res.redirect("/admin/billing");
 
     res.render("admin/manage-payment", { invoice });
 };
@@ -133,22 +137,20 @@ exports.recordPayment = async (req, res) => {
     }
     const invoice = await Invoice.findById(req.params.id);
     if (!invoice) return res.status(404).send("Bill not found.");
+    if (invoice.paymentStatus === "Paid") return res.redirect("/admin/billing");
 
-    const amount = Number(req.body.amount);
     const methods = ["Cash", "UPI", "Card", "Bank transfer"];
-    if (!Number.isFinite(amount) || amount <= 0 || amount > invoice.balanceDue
-        || !methods.includes(req.body.method)) {
-        return res.status(400).send("Enter a valid payment amount up to the outstanding balance and choose a payment method.");
+    const method = req.body.method;
+    if (!methods.includes(method)) {
+        return res.status(400).send("Please select a valid payment method.");
     }
 
-    invoice.payments.push({ amount, method: req.body.method });
-    const totalAmount = invoice.consultationFee + invoice.medicineCharges + invoice.otherCharges;
-    const amountPaid = invoice.payments.reduce((total, payment) => total + payment.amount, 0);
-    invoice.paymentStatus = amountPaid >= totalAmount
-        ? "Paid"
-        : amountPaid > 0
-            ? "Partially paid"
-            : "Unpaid";
+    invoice.payments = [{
+        amount: invoice.totalAmount,
+        method,
+        receivedAt: new Date()
+    }];
+    invoice.paymentStatus = "Paid";
     await invoice.save();
     res.redirect("/admin/billing");
 };

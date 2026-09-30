@@ -1,25 +1,43 @@
 <% layout("layouts/boilerplate") %>
 
-<div class="success-box">
+<div class="confirmation-wrapper">
+    <div class="confirmation-card">
+        <div class="confirmation-icon-wrap">
+            <span class="confirmation-check">&#10003;</span>
+        </div>
 
-    <h1>✅ Appointment Booked Successfully</h1>
+        <p class="dashboard-eyebrow">APPOINTMENT CONFIRMED</p>
+        <h1 class="confirmation-title">Booking Successful</h1>
+        <p class="confirmation-subtitle">
+            Your appointment has been registered with MediFlow HMS. Please review the details below.
+        </p>
 
-    <hr>
+        <div class="confirmation-details-card">
+            <div class="confirm-row">
+                <span class="confirm-label">Patient Name</span>
+                <strong class="confirm-val"><%= appointment.patientName %></strong>
+            </div>
+            <div class="confirm-row">
+                <span class="confirm-label">Appointment Date</span>
+                <strong class="confirm-val"><%= new Date(appointment.appointmentDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %></strong>
+            </div>
+            <div class="confirm-row">
+                <span class="confirm-label">Time Slot</span>
+                <strong class="confirm-val"><%= appointment.slot %></strong>
+            </div>
+            <div class="confirm-row">
+                <span class="confirm-label">Booking Status</span>
+                <span class="appointment-status status-pending"><%= appointment.status %></span>
+            </div>
+        </div>
 
-    <p><strong>Name:</strong> <%= appointment.patientName %></p>
-
-    <p><strong>Date:</strong>
-        <%= new Date(appointment.appointmentDate).toLocaleDateString() %>
-    </p>
-
-    <p><strong>Slot:</strong> <%= appointment.slot %></p>
-
-    <p><strong>Status:</strong> <%= appointment.status %></p>
-
-    <br>
-
-    <a href="/">
-        <button>Go Home</button>
-    </a>
-
+        <div class="confirmation-actions">
+            <a href="/" class="btn-pill-primary">
+                Return to Home
+            </a>
+            <a href="/appointment" class="button-link-secondary">
+                Book Another Appointment
+            </a>
+        </div>
+    </div>
 </div>

@@ -1,23 +1,41 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>Edit Patient</h1>
+<div class="form-page-container">
+    <div class="form-header-center">
+        <p class="dashboard-eyebrow">UPDATE PATIENT</p>
+        <h1>Edit Patient Profile</h1>
+        <p class="form-subtitle">Update demographic records for <%= patient.name %></p>
+    </div>
 
-<form action="/admin/patients/<%= patient._id %>?_method=PATCH" method="POST">
-    <label for="name">Name</label>
-    <input id="name" name="name" value="<%= patient.name %>" required>
+    <form class="styled-form-card" action="/admin/patients/<%= patient._id %>?_method=PATCH" method="POST" style="max-width: 520px;">
+        <div class="form-field">
+            <label for="name">Full Name</label>
+            <input id="name" name="name" value="<%= patient.name %>" required>
+        </div>
 
-    <label for="mobile">Mobile</label>
-    <input id="mobile" name="mobile" value="<%= patient.mobile %>" required>
+        <div class="form-row-2">
+            <div class="form-field">
+                <label for="mobile">Mobile Number</label>
+                <input id="mobile" name="mobile" value="<%= patient.mobile %>" required>
+            </div>
+            <div class="form-field">
+                <label for="age">Age</label>
+                <input id="age" name="age" type="number" min="0" value="<%= patient.age %>" required>
+            </div>
+        </div>
 
-    <label for="age">Age</label>
-    <input id="age" name="age" type="number" min="0" value="<%= patient.age %>" required>
+        <div class="form-field">
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
+                <% ["Male", "Female", "Other"].forEach(gender => { %>
+                    <option value="<%= gender %>" <%= patient.gender === gender ? "selected" : "" %>><%= gender %></option>
+                <% }) %>
+            </select>
+        </div>
 
-    <label for="gender">Gender</label>
-    <select id="gender" name="gender" required>
-        <% ["Male", "Female", "Other"].forEach(gender => { %>
-            <option value="<%= gender %>" <%= patient.gender === gender ? "selected" : "" %>><%= gender %></option>
-        <% }) %>
-    </select>
-
-    <button type="submit">Save Patient</button>
-</form>
+        <div style="display: flex; gap: 12px; margin-top: 12px;">
+            <button type="submit" class="btn-pill-primary" style="flex: 1;">Save Changes</button>
+            <a href="/admin/patients" class="button-link-secondary" style="display: flex; align-items: center; justify-content: center; padding: 11px 20px;">Cancel</a>
+        </div>
+    </form>
+</div>

@@ -1,43 +1,39 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>Completed Appointments</h1>
+<section class="dashboard-page">
+    <div class="page-heading-row">
+        <div>
+            <p class="dashboard-eyebrow">ARCHIVED RECORDS</p>
+            <h1>Completed Appointments</h1>
+        </div>
+        <a class="button-link-secondary" href="/admin/dashboard">Back to Dashboard</a>
+    </div>
 
-<table>
-
-<tr>
-
-<th>Name</th>
-
-<th>Mobile</th>
-
-<th>Date</th>
-
-<th>Slot</th>
-
-<th>Status</th>
-
-</tr>
-
-<% appointments.forEach(app=>{ %>
-
-<tr>
-
-<td><%= app.patientName %></td>
-
-<td><%= app.mobile %></td>
-
-<td><%= app.appointmentDate %></td>
-
-<td><%= app.slot %></td>
-
-<td>
-
-✅ Completed
-
-</td>
-
-</tr>
-
-<% }) %>
-
-</table>
+    <table>
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Mobile</th>
+                <th>Appointment Date</th>
+                <th>Slot</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% appointments.forEach(app => { %>
+                <tr>
+                    <td style="font-weight: 600;"><%= app.patientName %></td>
+                    <td><%= app.mobile %></td>
+                    <td><%= app.appointmentDate %></td>
+                    <td><strong><%= app.slot %></strong></td>
+                    <td><span class="appointment-status status-completed">Completed</span></td>
+                </tr>
+            <% }) %>
+            <% if (!appointments.length) { %>
+                <tr>
+                    <td colspan="5" class="empty-state">No completed appointments recorded.</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</section>

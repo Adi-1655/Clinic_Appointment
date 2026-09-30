@@ -1,45 +1,174 @@
 <% layout("layouts/boilerplate") %>
 
 <section class="dashboard-page">
-	<header class="dashboard-intro">
-		<p class="dashboard-eyebrow">Dashboard</p>
-		<h1>Welcome to Hospital Management System</h1>
-	</header>
+	<div class="page-heading-row">
+		<div>
+			<p class="dashboard-eyebrow">CLINIC MANAGEMENT PORTAL</p>
+			<h1>Welcome to MediFlow HMS</h1>
+		</div>
+		<% if (isSuperAdmin) { %>
+			<button type="button" class="btn-pill-primary" onclick="openAdminModal()">
+				<span>+</span> Add New Admin
+			</button>
+		<% } %>
+	</div>
+
+	<% if (typeof success !== "undefined" && success) { %>
+		<div class="alert alert-success">
+			<strong>✓ Success:</strong> <%= success %>
+		</div>
+	<% } %>
+	<% if (typeof error !== "undefined" && error) { %>
+		<div class="alert alert-error">
+			<strong>⚠ Notice:</strong> <%= error %>
+		</div>
+	<% } %>
 
 	<section class="dashboard-metrics" aria-label="Hospital overview">
 		<article class="dashboard-metric dashboard-metric-doctors">
-			<span class="metric-icon" aria-hidden="true">&#129658;</span>
+			<div class="metric-top-row">
+				<span class="metric-icon metric-icon-teal" aria-hidden="true">&#129658;</span>
+				<span class="metric-trend">Active Staff</span>
+			</div>
 			<h2>Total Doctors</h2>
-			<p><%= totalDoctors %></p>
+			<p class="metric-value"><%= totalDoctors %></p>
 		</article>
+
 		<article class="dashboard-metric dashboard-metric-patients">
-			<span class="metric-icon" aria-hidden="true">&#128101;</span>
+			<div class="metric-top-row">
+				<span class="metric-icon metric-icon-blue" aria-hidden="true">&#128101;</span>
+				<span class="metric-trend">Registered</span>
+			</div>
 			<h2>Total Patients</h2>
-			<p><%= totalPatients %></p>
+			<p class="metric-value"><%= totalPatients %></p>
 		</article>
+
 		<a class="dashboard-metric dashboard-metric-appointments" href="/admin/todays-appointments">
-			<span class="metric-icon" aria-hidden="true">&#128197;</span>
+			<div class="metric-top-row">
+				<span class="metric-icon metric-icon-amber" aria-hidden="true">&#128197;</span>
+				<span class="metric-trend">Daily Schedule</span>
+			</div>
 			<h2>Today's Appointments</h2>
-			<p><%= totalToday %></p>
+			<p class="metric-value"><%= totalToday %></p>
 		</a>
+
+		<% if (isSuperAdmin) { %>
+			<a class="dashboard-metric dashboard-metric-admins" href="/admin/admins">
+				<div class="metric-top-row">
+					<span class="metric-icon metric-icon-purple" aria-hidden="true">&#128737;</span>
+					<span class="metric-trend">Super Admin</span>
+				</div>
+				<h2>Total Admins</h2>
+				<p class="metric-value"><%= totalAdmins %></p>
+			</a>
+		<% } else { %>
+			<article class="dashboard-metric dashboard-metric-admins">
+				<div class="metric-top-row">
+					<span class="metric-icon metric-icon-purple" aria-hidden="true">&#128737;</span>
+					<span class="metric-trend">Admin Staff</span>
+				</div>
+				<h2>Total Admins</h2>
+				<p class="metric-value"><%= totalAdmins %></p>
+			</article>
+		<% } %>
 	</section>
 
 	<section class="specialization-section">
 		<div class="section-heading">
-			<h2>Doctor Specializations</h2>
-			<span><%= specializations.length %> specialties</span>
+			<div>
+				<h2>Doctor Specializations</h2>
+				<p class="section-subheading">Clinical departments and practicing medical specialists</p>
+			</div>
+			<span class="badge-pill"><%= specializations.length %> <%= specializations.length === 1 ? 'Specialty' : 'Specialties' %></span>
 		</div>
 
 		<div class="specialization-list">
 			<% specializations.forEach(item => { %>
 				<div class="specialization-row">
-					<span><%= item._id %></span>
-					<strong><%= item.count %> <%= item.count === 1 ? "Doctor" : "Doctors" %></strong>
+					<div class="specialty-name-wrap">
+						<span class="specialty-dot" aria-hidden="true"></span>
+						<span class="specialty-title"><%= item._id %></span>
+					</div>
+					<strong class="specialty-badge"><%= item.count %> <%= item.count === 1 ? "Doctor" : "Doctors" %></strong>
 				</div>
 			<% }) %>
 			<% if (!specializations.length) { %>
-				<p class="empty-state">No active doctor specializations have been added.</p>
+				<div class="empty-state-card">
+					<span class="empty-icon" aria-hidden="true">&#9877;</span>
+					<p class="empty-state">No active doctor specializations have been added yet.</p>
+					<a href="/admin/doctors" class="button-link-secondary">Add Your First Doctor</a>
+				</div>
 			<% } %>
 		</div>
 	</section>
 </section>
+
+<% if (isSuperAdmin) { %>
+<!-- Add Admin Modal -->
+<div id="adminModal" class="modal-backdrop" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-header">
+			<div>
+				<span class="modal-eyebrow">ACCESS CONTROL</span>
+				<h3>Add New Administrator</h3>
+			</div>
+			<button type="button" class="modal-close" onclick="closeAdminModal()" aria-label="Close">&times;</button>
+		</div>
+		<form action="/admin/admins" method="POST" class="modal-form">
+			<input type="hidden" name="redirectTo" value="/admin/dashboard">
+
+			<div class="form-field">
+				<label for="modal-username">Username</label>
+				<input id="modal-username" type="text" name="username" placeholder="e.g. DrSmithAdmin" minlength="3" required autocomplete="off">
+				<span class="field-hint">Must be at least 3 characters.</span>
+			</div>
+
+			<div class="form-field">
+				<label for="modal-password">Password</label>
+				<input id="modal-password" type="password" name="password" placeholder="At least 6 characters" minlength="6" required autocomplete="new-password">
+			</div>
+
+			<div class="form-field">
+				<label for="modal-confirm">Confirm Password</label>
+				<input id="modal-confirm" type="password" name="confirmPassword" placeholder="Re-enter password" minlength="6" required>
+			</div>
+
+			<div class="modal-actions">
+				<button type="button" class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
+				<button type="submit" class="btn-submit">Create Admin Account</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script>
+function openAdminModal() {
+	const modal = document.getElementById('adminModal');
+	if (modal) {
+		modal.style.display = 'flex';
+		const input = document.getElementById('modal-username');
+		if (input) setTimeout(() => input.focus(), 100);
+	}
+}
+
+function closeAdminModal() {
+	const modal = document.getElementById('adminModal');
+	if (modal) {
+		modal.style.display = 'none';
+	}
+}
+
+window.addEventListener('click', function(e) {
+	const modal = document.getElementById('adminModal');
+	if (e.target === modal) {
+		closeAdminModal();
+	}
+});
+
+window.addEventListener('keydown', function(e) {
+	if (e.key === 'Escape') {
+		closeAdminModal();
+	}
+});
+</script>
+<% } %>

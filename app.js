@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const ejsMate = require("ejs-mate");
+const bcrypt = require("bcrypt");
 
 const connectDB = require("./config/db");
 

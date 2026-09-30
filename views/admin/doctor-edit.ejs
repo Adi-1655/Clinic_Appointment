@@ -1,33 +1,51 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>Edit Doctor Schedule</h1>
+<div class="form-page-container">
+    <div class="form-header-center">
+        <p class="dashboard-eyebrow">UPDATE SCHEDULE</p>
+        <h1>Edit Doctor Schedule</h1>
+        <p class="form-subtitle">Update working days and active consultation slots for <%= doctor.name %></p>
+    </div>
 
-<form action="/admin/doctors/<%= doctor._id %>?_method=PATCH" method="POST">
-    <label for="doctor-name">Name</label>
-    <input id="doctor-name" name="name" value="<%= doctor.name %>" required>
+    <form class="styled-form-card" action="/admin/doctors/<%= doctor._id %>?_method=PATCH" method="POST" style="max-width: 640px;">
+        <div class="form-row-2">
+            <div class="form-field">
+                <label for="doctor-name">Doctor Name</label>
+                <input id="doctor-name" name="name" value="<%= doctor.name %>" required>
+            </div>
+            <div class="form-field">
+                <label for="doctor-specialty">Specialty</label>
+                <input id="doctor-specialty" name="specialty" value="<%= doctor.specialty %>" required>
+            </div>
+        </div>
 
-    <label for="doctor-specialty">Specialty</label>
-    <input id="doctor-specialty" name="specialty" value="<%= doctor.specialty %>" required>
+        <fieldset>
+            <legend>Weekly Working Days</legend>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+                <% days.forEach((day, index) => { %>
+                    <label class="schedule-choice">
+                        <input type="checkbox" name="days[]" value="<%= index %>" <%= doctor.schedule.some(item => item.dayOfWeek === index) ? "checked" : "" %>>
+                        <span><%= day %></span>
+                    </label>
+                <% }) %>
+            </div>
+        </fieldset>
 
-    <fieldset>
-        <legend>Working days</legend>
-        <% days.forEach((day, index) => { %>
-            <label class="schedule-choice">
-                <input type="checkbox" name="days[]" value="<%= index %>" <%= doctor.schedule.some(item => item.dayOfWeek === index) ? "checked" : "" %>>
-                <span><%= day %></span>
-            </label>
-        <% }) %>
-    </fieldset>
+        <fieldset>
+            <legend>Available Consultation Time Slots</legend>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
+                <% slots.forEach(slot => { %>
+                    <label class="schedule-choice">
+                        <input type="checkbox" name="slots[]" value="<%= slot %>" <%= doctor.schedule.some(item => item.slots.includes(slot)) ? "checked" : "" %>>
+                        <span><%= slot %></span>
+                    </label>
+                <% }) %>
+            </div>
+        </fieldset>
 
-    <fieldset>
-        <legend>Available appointment times</legend>
-        <% slots.forEach(slot => { %>
-            <label class="schedule-choice">
-                <input type="checkbox" name="slots[]" value="<%= slot %>" <%= doctor.schedule.some(item => item.slots.includes(slot)) ? "checked" : "" %>>
-                <span><%= slot %></span>
-            </label>
-        <% }) %>
-    </fieldset>
-
-    <button type="submit">Save Schedule</button>
-</form>
+        <div style="display: flex; gap: 12px; margin-top: 12px;">
+            <button type="submit" class="btn-pill-primary" style="flex: 1;">Save Schedule</button>
+            <a href="/admin/doctors" class="button-link-secondary" style="display: flex; align-items: center; justify-content: center; padding: 11px 20px;">Cancel</a>
+        </div>
+    </form>
+</div>

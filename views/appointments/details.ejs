@@ -1,92 +1,84 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>Book Appointment</h1>
+<div class="form-page-container">
+    <div class="form-header-center">
+        <p class="dashboard-eyebrow">CONFIRM DETAILS</p>
+        <h1>Patient Information</h1>
+        <p class="form-subtitle">Complete your appointment booking with <%= doctor.name %> (<%= doctor.specialty %>)</p>
+    </div>
 
-<form action="/appointment" method="POST">
+    <form class="styled-form-card" action="/appointment" method="POST">
+        <input type="hidden" name="appointmentDate" value="<%= appointmentDate %>">
+        <input type="hidden" name="doctorId" value="<%= doctor._id %>">
 
-    <input
-        type="hidden"
-        name="appointmentDate"
-        value="<%= appointmentDate %>"
-    >
+        <div class="doctor-badge-row">
+            <div class="doctor-avatar-circle">&#9877;</div>
+            <div>
+                <strong style="color: var(--text-heading); font-size: 15px;"><%= doctor.name %></strong>
+                <span class="muted-text" style="display: block; font-size: 13px;"><%= doctor.specialty %> &middot; <%= new Date(appointmentDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+            </div>
+        </div>
 
-    <input type="hidden" name="doctorId" value="<%= doctor._id %>">
+        <div class="form-field">
+            <label for="p-name">Patient Full Name</label>
+            <input id="p-name" type="text" name="patientName" placeholder="Enter patient full name" required>
+        </div>
 
-    <p><strong>Doctor:</strong> <%= doctor.name %> (<%= doctor.specialty %>)</p>
+        <div class="form-row-2">
+            <div class="form-field">
+                <label for="p-mobile">Mobile Number</label>
+                <input id="p-mobile" type="tel" name="mobile" placeholder="10-digit mobile" required>
+            </div>
+            <div class="form-field">
+                <label for="p-age">Age</label>
+                <input id="p-age" type="number" name="age" min="0" placeholder="e.g. 28" required>
+            </div>
+        </div>
 
-    <label>Name</label>
-    <input type="text" name="patientName" required>
+        <div class="form-field">
+            <label for="p-gender">Gender</label>
+            <select id="p-gender" name="gender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
 
-    <label>Mobile</label>
-    <input type="text" name="mobile" required>
+        <div class="form-field">
+            <label for="p-problem">Symptoms / Reason for Visit</label>
+            <textarea id="p-problem" name="problem" placeholder="Describe symptoms or reasons for consultation..." required></textarea>
+        </div>
 
-    <label>Age</label>
-    <input type="number" name="age" required>
+        <div class="form-field">
+            <label for="p-slot">Available Time Slot</label>
+            <select id="p-slot" name="slot" required>
+                <% let freeSlot = false; %>
+                <% availableSlots.forEach(item => { %>
+                    <% if (item.available) { %>
+                        <% freeSlot = true; %>
+                        <option value="<%= item.slot %>">
+                            <%= item.slot %> (<%= 5 - item.booked %> slots remaining)
+                        </option>
+                    <% } else { %>
+                        <option disabled>
+                            <%= item.slot %> (FULL)
+                        </option>
+                    <% } %>
+                <% }) %>
+            </select>
+        </div>
 
-    <label>Gender</label>
-
-    <select name="gender">
-
-        <option>Male</option>
-        <option>Female</option>
-        <option>Other</option>
-
-    </select>
-
-    <label>Problem</label>
-
-    <textarea
-        name="problem"
-        required
-    ></textarea>
-
-    <label>Select Slot</label>
-
-    <select name="slot">
-
-        <% let freeSlot = false; %>
-
-        <% availableSlots.forEach(item=>{ %>
-
-            <% if(item.available){ %>
-
-                <% freeSlot = true; %>
-
-                <option value="<%= item.slot %>">
-                    <%= item.slot %>
-                    (<%= 5-item.booked %> Left)
-                </option>
-
-            <% }else{ %>
-
-                <option disabled>
-
-                    <%= item.slot %>
-
-                    (FULL)
-
-                </option>
-
-            <% } %>
-
-        <% }) %>
-
-    </select>
-
-    <% if(freeSlot){ %>
-
-        <button>
-            Book Appointment
-        </button>
-
-    <% }else{ %>
-
-        <h2 style="color:red">
-
-            No Slots Available Today
-
-        </h2>
-
-    <% } %>
-
-</form>
+        <% if (freeSlot) { %>
+            <button type="submit" class="btn-pill-primary" style="width: 100%; margin-top: 10px;">
+                Confirm &amp; Book Appointment
+            </button>
+        <% } else { %>
+            <div class="alert alert-error" style="margin-top: 14px;">
+                No slots available on this date for this doctor. Please choose a different date.
+            </div>
+            <a href="/appointment" class="button-link-secondary" style="display: block; text-align: center; margin-top: 10px;">
+                Choose Another Date
+            </a>
+        <% } %>
+    </form>
+</div>

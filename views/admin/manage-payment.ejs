@@ -3,33 +3,83 @@
 <section class="today-appointments-page">
     <header class="page-heading-row">
         <div>
-            <p class="dashboard-eyebrow">Billing</p>
-            <h1>Manage Payment</h1>
+            <p class="dashboard-eyebrow">BILLING &amp; PAYMENT</p>
+            <h1>Collect One-Time Payment</h1>
+            <p class="form-subtitle">Settle invoice in full with a single one-time payment</p>
         </div>
-        <a class="button-link" href="/admin/billing">Back to Billing</a>
+        <a class="button-link-secondary" href="/admin/billing">Back to Billing</a>
     </header>
 
-    <section class="billing-record">
-        <h2>Patient and bill</h2>
-        <p><strong>Patient:</strong> <%= invoice.appointment ? invoice.appointment.patientName : "Appointment record unavailable" %></p>
-        <p><strong>Mobile:</strong> <%= invoice.appointment ? invoice.appointment.mobile : "-" %></p>
-        <p><strong>Visit:</strong> <%= invoice.appointment ? `${invoice.appointment.appointmentDate} · ${invoice.appointment.slot}` : "-" %></p>
-        <p><strong>Total:</strong> INR <%= invoice.totalAmount.toFixed(2) %></p>
-        <p><strong>Paid:</strong> INR <%= invoice.amountPaid.toFixed(2) %></p>
-        <p><strong>Balance due:</strong> INR <%= invoice.balanceDue.toFixed(2) %></p>
-    </section>
+    <div style="max-width: 680px; margin: 24px auto 0;">
+        <article class="admin-card" style="padding: 34px;">
+            <div class="section-heading" style="margin-bottom: 22px;">
+                <h2>Invoice Summary</h2>
+                <span class="appointment-status">Awaiting Payment</span>
+            </div>
 
-    <form action="/admin/billing/<%= invoice._id %>/payment" method="POST">
-        <label for="amount">Payment amount (INR)</label>
-        <input id="amount" type="number" name="amount" min="0.01" max="<%= invoice.balanceDue %>" step="0.01" required>
+            <!-- Patient & Visit Details -->
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;">
+                <div class="confirm-row">
+                    <span class="confirm-label">Patient Name</span>
+                    <span class="confirm-val"><%= invoice.appointment ? invoice.appointment.patientName : "Appointment record unavailable" %></span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Mobile Number</span>
+                    <span class="confirm-val"><%= invoice.appointment ? invoice.appointment.mobile : "-" %></span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Visit Schedule</span>
+                    <span class="confirm-val"><%= invoice.appointment ? `${invoice.appointment.appointmentDate} · ${invoice.appointment.slot}` : "-" %></span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Reason / Problem</span>
+                    <span class="confirm-val"><%= invoice.appointment ? invoice.appointment.problem : "-" %></span>
+                </div>
+            </div>
 
-        <label for="method">Payment method</label>
-        <select id="method" name="method" required>
-            <% ["Cash", "UPI", "Card", "Bank transfer"].forEach(method => { %>
-                <option value="<%= method %>"><%= method %></option>
-            <% }) %>
-        </select>
+            <!-- Fee Breakdown -->
+            <div style="background: var(--bg-surface-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: 24px;">
+                <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 12px;">Charge Breakdown</h3>
+                <div class="confirm-row" style="padding: 6px 0;">
+                    <span class="confirm-label">Consultation Fee</span>
+                    <span class="confirm-val">₹<%= (invoice.consultationFee || 0).toFixed(2) %></span>
+                </div>
+                <div class="confirm-row" style="padding: 6px 0;">
+                    <span class="confirm-label">Medicine Charges</span>
+                    <span class="confirm-val">₹<%= (invoice.medicineCharges || 0).toFixed(2) %></span>
+                </div>
+                <div class="confirm-row" style="padding: 6px 0;">
+                    <span class="confirm-label">Other Charges</span>
+                    <span class="confirm-val">₹<%= (invoice.otherCharges || 0).toFixed(2) %></span>
+                </div>
+                <div class="confirm-row" style="padding: 12px 0 4px; border-top: 2px solid var(--border-color); margin-top: 6px;">
+                    <span style="font-size: 16px; font-weight: 700; color: var(--brand-primary);">Total Payable (One-Time)</span>
+                    <span style="font-size: 22px; font-weight: 800; color: var(--brand-accent);">₹<%= invoice.totalAmount.toFixed(2) %></span>
+                </div>
+            </div>
 
-        <button type="submit">Save Payment</button>
-    </form>
+            <!-- One-time Payment Confirmation Form -->
+            <form action="/admin/billing/<%= invoice._id %>/payment" method="POST" style="margin-top: 10px;">
+                <div class="form-field" style="margin-bottom: 20px;">
+                    <label for="method" style="font-weight: 600; color: var(--text-heading); font-size: 14px; display: block; margin-bottom: 8px;">Select Payment Method</label>
+                    <select id="method" name="method" required style="width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 15px; background: white;">
+                        <% ["Cash", "UPI", "Card", "Bank transfer"].forEach(method => { %>
+                            <option value="<%= method %>"><%= method %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 24px; padding: 12px 16px; background: #eaf7f2; border: 1px solid #bcead4; border-radius: var(--radius-md); font-size: 13.5px; color: #13603e;">
+                    <strong>✓ Single Full Settlement:</strong> Submitting will record the full payment of <strong>₹<%= invoice.totalAmount.toFixed(2) %></strong> and close this invoice as <strong>Paid</strong>.
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="btn-pill-primary" style="flex: 1; justify-content: center; padding: 14px 24px; font-size: 15px;">
+                        Confirm Full Payment · ₹<%= invoice.totalAmount.toFixed(2) %>
+                    </button>
+                    <a href="/admin/billing" class="button-link-secondary" style="padding: 14px 20px;">Cancel</a>
+                </div>
+            </form>
+        </article>
+    </div>
 </section>

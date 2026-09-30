@@ -20,7 +20,7 @@ async function linkLegacyPatients() {
                     gender: appointment.gender
                 }
             },
-            { new: true, upsert: true, runValidators: true }
+            { returnDocument: 'after', upsert: true, runValidators: true }
         );
         appointment.patient = patient._id;
         await appointment.save();
@@ -51,7 +51,7 @@ exports.updatePatient = async (req, res) => {
     const patient = await Patient.findByIdAndUpdate(
         req.params.id,
         { name, mobile, age, gender },
-        { new: true, runValidators: true }
+        { returnDocument: 'after', runValidators: true }
     );
     if (!patient) return res.status(404).send("Patient not found.");
     await Appointment.updateMany({ patient: patient._id }, {

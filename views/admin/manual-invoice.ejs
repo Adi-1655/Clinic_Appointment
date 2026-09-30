@@ -3,46 +3,139 @@
 <section class="today-appointments-page">
     <header class="page-heading-row">
         <div>
-            <p class="dashboard-eyebrow">Billing</p>
-            <h1>Create Manual Invoice</h1>
+            <p class="dashboard-eyebrow">BILLING &amp; INVOICING</p>
+            <h1>Create Invoice</h1>
+            <p class="form-subtitle">Generate a one-time payment invoice for this completed visit</p>
         </div>
-        <a class="button-link" href="/admin/billing">Back to Billing</a>
+        <a class="button-link-secondary" href="/admin/billing">Back to Billing</a>
     </header>
 
-    <section class="billing-record">
-        <h2>Patient information</h2>
-        <p><strong>Name:</strong> <%= appointment.patientName %></p>
-        <p><strong>Mobile:</strong> <%= appointment.mobile %></p>
-        <p><strong>Age:</strong> <%= appointment.age %></p>
-        <p><strong>Gender:</strong> <%= appointment.gender %></p>
-        <p><strong>Reason:</strong> <%= appointment.problem %></p>
-        <p><strong>Doctor:</strong> <%= appointment.doctor ? `${appointment.doctor.name} (${appointment.doctor.specialty})` : "Not assigned" %></p>
-        <p><strong>Appointment:</strong> <%= appointment.appointmentDate %> · <%= appointment.slot %></p>
-    </section>
+    <div style="display: grid; grid-template-columns: 1fr 1.35fr; gap: 28px; margin-top: 16px; align-items: start;">
+        <!-- Patient Summary Card -->
+        <article class="admin-card" style="padding: 28px;">
+            <div class="section-heading" style="margin-bottom: 20px;">
+                <h2>Patient Details</h2>
+                <span class="badge-status-completed">Completed Visit</span>
+            </div>
 
-    <form action="/admin/billing/appointments/<%= appointment._id %>/invoice" method="POST">
-        <h2>Invoice charges (INR)</h2>
-        <label for="consultationFee">Consultation fee</label>
-        <input id="consultationFee" type="number" name="consultationFee" min="0" step="0.01" value="0" required>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div class="confirm-row">
+                    <span class="confirm-label">Patient Name</span>
+                    <span class="confirm-val"><%= appointment.patientName %></span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Mobile Number</span>
+                    <span class="confirm-val"><%= appointment.mobile %></span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Age / Gender</span>
+                    <span class="confirm-val"><%= appointment.age %> yrs &middot; <%= appointment.gender %></span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Consulting Doctor</span>
+                    <span class="confirm-val"><%= appointment.doctor ? `${appointment.doctor.name} (${appointment.doctor.specialty})` : "Not assigned" %></span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Reason / Problem</span>
+                    <span class="confirm-val"><%= appointment.problem %></span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">Visit Schedule</span>
+                    <span class="confirm-val"><%= appointment.appointmentDate %> &middot; <%= appointment.slot %></span>
+                </div>
+            </div>
 
-        <label for="medicineCharges">Medicine charges</label>
-        <input id="medicineCharges" type="number" name="medicineCharges" min="0" step="0.01" value="0" required>
+            <div style="margin-top: 24px; padding: 14px; background: var(--bg-surface-subtle); border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 13.5px; color: var(--text-muted); line-height: 1.5;">
+                <strong style="color: var(--brand-primary); display: block; margin-bottom: 4px;">&#9432; One-Time Payment Policy</strong>
+                This clinic operates on a single one-time payment model. Invoices can be collected in full right now or marked as unpaid for later collection before departure.
+            </div>
+        </article>
 
-        <label for="otherCharges">Other charges</label>
-        <input id="otherCharges" type="number" name="otherCharges" min="0" step="0.01" value="0" required>
+        <!-- Invoice Form Card -->
+        <div class="admin-card" style="padding: 30px;">
+            <div class="section-heading" style="margin-bottom: 22px;">
+                <h2>Invoice Charges &amp; Settlement</h2>
+            </div>
 
-        <h2>Initial payment (optional)</h2>
-        <label for="paymentAmount">Amount received</label>
-        <input id="paymentAmount" type="number" name="paymentAmount" min="0" step="0.01" value="0" required>
+            <form action="/admin/billing/appointments/<%= appointment._id %>/invoice" method="POST" id="invoiceForm">
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="form-field">
+                        <label for="consultationFee" style="font-weight: 600; color: var(--text-heading); font-size: 14px;">Consultation Fee (INR)</label>
+                        <input id="consultationFee" type="number" name="consultationFee" min="0" step="0.01" value="0" required oninput="calculateTotal()" style="width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 15px;">
+                    </div>
 
-        <label for="paymentMethod">Payment method</label>
-        <select id="paymentMethod" name="paymentMethod">
-            <option value="">No payment received</option>
-            <% ["Cash", "UPI", "Card", "Bank transfer"].forEach(method => { %>
-                <option value="<%= method %>"><%= method %></option>
-            <% }) %>
-        </select>
+                    <div class="form-field">
+                        <label for="medicineCharges" style="font-weight: 600; color: var(--text-heading); font-size: 14px;">Medicine &amp; Pharmacy Charges (INR)</label>
+                        <input id="medicineCharges" type="number" name="medicineCharges" min="0" step="0.01" value="0" required oninput="calculateTotal()" style="width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 15px;">
+                    </div>
 
-        <button type="submit">Save Invoice</button>
-    </form>
+                    <div class="form-field">
+                        <label for="otherCharges" style="font-weight: 600; color: var(--text-heading); font-size: 14px;">Other Procedures / Lab Charges (INR)</label>
+                        <input id="otherCharges" type="number" name="otherCharges" min="0" step="0.01" value="0" required oninput="calculateTotal()" style="width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 15px;">
+                    </div>
+
+                    <!-- Total Banner -->
+                    <div style="background: #f0f7f7; border: 1.5px solid #cce5e8; border-radius: var(--radius-md); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin: 6px 0;">
+                        <span style="font-size: 15px; font-weight: 600; color: var(--brand-primary);">Total One-Time Amount</span>
+                        <span style="font-size: 24px; font-weight: 800; color: var(--brand-accent);" id="totalDisplay">₹0.00</span>
+                    </div>
+
+                    <!-- Payment Settlement Choice -->
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 18px; margin-top: 4px;">
+                        <label style="font-weight: 700; color: var(--brand-primary); font-size: 14.5px; display: block; margin-bottom: 12px;">Payment Settlement</label>
+                        
+                        <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-heading);">
+                                <input type="radio" name="paymentAction" value="paid" checked onchange="togglePaymentMethod(true)">
+                                <span>Mark as Paid (Collect full payment now)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-heading);">
+                                <input type="radio" name="paymentAction" value="unpaid" onchange="togglePaymentMethod(false)">
+                                <span>Save as Unpaid (Pay before leaving)</span>
+                            </label>
+                        </div>
+
+                        <div id="paymentMethodWrap" class="form-field">
+                            <label for="paymentMethod" style="font-weight: 600; color: var(--text-heading); font-size: 14px;">One-Time Payment Method</label>
+                            <select id="paymentMethod" name="paymentMethod" style="width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 15px; background: white;">
+                                <% ["Cash", "UPI", "Card", "Bank transfer"].forEach(method => { %>
+                                    <option value="<%= method %>"><%= method %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-top: 10px;">
+                        <button type="submit" class="btn-pill-primary" style="flex: 1; justify-content: center; padding: 14px 24px; font-size: 15px;">Create &amp; Save Invoice</button>
+                        <a href="/admin/billing" class="button-link-secondary" style="padding: 14px 20px;">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>
+
+<script>
+function calculateTotal() {
+    const c = parseFloat(document.getElementById('consultationFee').value) || 0;
+    const m = parseFloat(document.getElementById('medicineCharges').value) || 0;
+    const o = parseFloat(document.getElementById('otherCharges').value) || 0;
+    const total = c + m + o;
+    document.getElementById('totalDisplay').textContent = '₹' + total.toFixed(2);
+}
+
+function togglePaymentMethod(isPaid) {
+    const wrap = document.getElementById('paymentMethodWrap');
+    const select = document.getElementById('paymentMethod');
+    if (isPaid) {
+        wrap.style.display = 'block';
+        select.required = true;
+    } else {
+        wrap.style.display = 'none';
+        select.required = false;
+        select.value = '';
+    }
+}
+
+calculateTotal();
+</script>

@@ -1,25 +1,48 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>Patients</h1>
+<section class="dashboard-page">
+    <div class="page-heading-row">
+        <div>
+            <p class="dashboard-eyebrow">PATIENT REGISTRY</p>
+            <h1>Patients Directory</h1>
+        </div>
+        <a class="button-link-secondary" href="/admin/dashboard">Back to Dashboard</a>
+    </div>
 
-<form action="/admin/patients" method="GET">
-    <label for="patient-search">Search patients</label>
-    <input id="patient-search" type="search" name="q" value="<%= query %>" placeholder="Name or mobile">
-    <button type="submit">Search</button>
-</form>
+    <form class="styled-form-card" action="/admin/patients" method="GET" style="width: 100%; max-width: 100%; margin: 0 0 28px; padding: 20px 24px; display: flex; gap: 14px; align-items: flex-end;">
+        <div style="flex: 1;">
+            <label for="patient-search" style="margin-bottom: 6px;">Search Patient Records</label>
+            <input id="patient-search" type="search" name="q" value="<%= query %>" placeholder="Enter patient name or mobile number..." style="margin-bottom: 0;">
+        </div>
+        <button type="submit" class="btn-pill-primary" style="padding: 12px 24px;">Search</button>
+        <% if (query) { %>
+            <a href="/admin/patients" class="button-link-secondary" style="padding: 12px 18px;">Clear</a>
+        <% } %>
+    </form>
 
-<table>
-    <thead><tr><th>Name</th><th>Mobile</th><th>Age</th><th>Gender</th><th>Action</th></tr></thead>
-    <tbody>
-        <% patients.forEach(patient => { %>
+    <table>
+        <thead>
             <tr>
-                <td><%= patient.name %></td>
-                <td><%= patient.mobile %></td>
-                <td><%= patient.age %></td>
-                <td><%= patient.gender %></td>
-                <td><a href="/admin/patients/<%= patient._id %>/edit">Edit</a></td>
+                <th>Patient Name</th>
+                <th>Mobile</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Action</th>
             </tr>
-        <% }) %>
-        <% if (!patients.length) { %><tr><td colspan="5">No patient records found.</td></tr><% } %>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            <% patients.forEach(patient => { %>
+                <tr>
+                    <td style="font-weight: 600;"><%= patient.name %></td>
+                    <td><%= patient.mobile %></td>
+                    <td><%= patient.age %> yrs</td>
+                    <td><%= patient.gender %></td>
+                    <td><a class="button-link-secondary" style="padding: 5px 14px; font-size: 13px;" href="/admin/patients/<%= patient._id %>/edit">Edit Record</a></td>
+                </tr>
+            <% }) %>
+            <% if (!patients.length) { %>
+                <tr><td colspan="5" class="empty-state">No patient records found.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</section>

@@ -1,29 +1,26 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>Admin Login</h1>
+<div class="form-page-container">
+    <div class="form-header-center">
+        <div class="brand-cross" style="margin: 0 auto 16px; width: 44px; height: 44px; font-size: 20px;">&#10010;</div>
+        <p class="dashboard-eyebrow">PORTAL AUTHENTICATION</p>
+        <h1>Admin Sign In</h1>
+        <p class="form-subtitle">Enter your credentials to access the MediFlow HMS dashboard.</p>
+    </div>
 
-<form action="/admin/login" method="POST">
+    <form class="styled-form-card" action="/admin/login" method="POST" style="max-width: 440px;">
+        <div class="form-field">
+            <label for="login-username">Username</label>
+            <input id="login-username" type="text" name="username" placeholder="Enter administrator username" required autocomplete="username">
+        </div>
 
-<label>Username</label>
+        <div class="form-field">
+            <label for="login-password">Password</label>
+            <input id="login-password" type="password" name="password" placeholder="Enter password" required autocomplete="current-password">
+        </div>
 
-<input
-type="text"
-name="username"
-required
->
-
-<label>Password</label>
-
-<input
-type="password"
-name="password"
-required
->
-
-<button>
-
-Login
-
-</button>
-
-</form>
+        <button type="submit" class="btn-pill-primary" style="width: 100%; margin-top: 10px;">
+            Sign In to Portal &rarr;
+        </button>
+    </form>
+</div>
