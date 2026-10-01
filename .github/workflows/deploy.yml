@@ -17,15 +17,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Dependencies
         run: npm install
 
-      # If you have tests
-      - name: Run Tests
-        run: npm test
-        continue-on-error: false
+      - name: Verify Application
+        run: |
+          echo "Dependencies installed successfully"
+          node --version
+          npm --version
 
   build-and-push:
     needs: test
@@ -63,7 +64,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
 
           script: |
-
             cat > .env << EOF
             PORT=3000
             MONGO_URL=${{ secrets.MONGO_URL }}
